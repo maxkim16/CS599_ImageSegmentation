@@ -33,32 +33,45 @@ IMG_HEIGHT = 256 # resized height
 IMG_WIDTH = 256 # resized width
 IMG_CHANNELS = 3 # 
 
+train_image_path = 'data/training_images/'
+train_mask_path = 'data/training_masks/'
+val_image_path = 'data/validation_images/'
+val_mask_path = 'data/validation_masks/'
+test_image_path = 'data/testing_images/'
+
+num_train_images = len(next(os.walk(train_image_path))[2])
+num_train_masks = len(next(os.walk(train_mask_path))[2])
+num_val_images = len(next(os.walk(val_image_path))[2])
+num_val_masks = len(next(os.walk(val_mask_path))[2])
+num_test_images = len(next(os.walk(test_image_path))[2])
+
+
 training_model_save = 'training_model.h5'
-test_masks_save = 'maxkim_test_masks_nolambda_e30_b20.npy'
-num_epoch=30
-num_batch=20
+test_masks_save = 'test_masks_e35.npy' # save the test masks as a numpy array
+num_epoch=35
+num_batch=100
 
 # <h1>Show Image Sample</h1>
 
 # In[26]:
 
-
+'''
 train_sample = misc.imread('data/training_images/train_img_1.jpg')
 print("type: ", type(train_sample))
 print("shape: ", train_sample.shape)
-#plt.imshow(train_sample)
-
+plt.imshow(train_sample)
+'''
 
 # <h1>Show Mask Sample</h1>
 
 # In[27]:
 
-
+'''
 mask_sample = misc.imread('data/training_masks/train_mask_1.jpg')
 print("type: ", type(mask_sample))
 print("shape: ", mask_sample.shape)
-#plt.imshow(mask_sample, cmap='gray')
-
+plt.imshow(mask_sample, cmap='gray')
+'''
 
 # <h1>Get and Resize Train Image</h1>
 
@@ -66,8 +79,7 @@ print("shape: ", mask_sample.shape)
 
 
 image_list = []
-train_image_path = 'data/training_images/'
-for i in range(1, 1501):
+for i in range(1, num_train_images+1):
     im = misc.imread(train_image_path + 'train_img_' + str(i) + '.jpg') # read as numpy
     # resize the image to 256 X 256
     #plt.imshow(im)
@@ -77,13 +89,13 @@ for i in range(1, 1501):
 
 # In[29]:
 
-
+'''
 print("type: ", len(image_list))
 print("type: ", type(image_list))
 print("list length: ", len(image_list))
 print("element shape: ", image_list[0].shape)
-#plt.imshow(image_list[0]) # display the first image
-
+plt.imshow(image_list[0]) # display the first image
+'''
 
 # <h1>Get and Resize Train Masks</h1>
 
@@ -91,26 +103,24 @@ print("element shape: ", image_list[0].shape)
 
 
 mask_list = []
-train_mask_path = 'data/training_masks/'
-for i in range(1, 1501):
+for i in range(1, num_train_masks+1):
     # opencv reads an image as 3 Channles (BGR) although mask is a grayscale image
     im = misc.imread(train_mask_path + 'train_mask_' + str(i) + '.jpg') # read as numpy
     # resize the image to 256 X 256
-    im = resize(im, (IMG_HEIGHT, IMG_WIDTH, 1), mode='constant')
     # expand dimension (256, 256) to (256, 256, 1) to indicate that it has 1 channel for model.fit
-    #im = np.expand_dims(im, 2) # 2 indicates 3rd dimension
-    mask_list.append(np.array(im)) # append it to the list 
+    im = resize(im, (IMG_HEIGHT, IMG_WIDTH, 1), mode='constant')
+    mask_list.append(np.array(im)) # append it to the list
 
 
 # In[31]:
 
-
+'''
 print("type: ", type(mask_list))
 print("list length: ", len(mask_list))
 print("element shape: ", mask_list[0].shape)
-#plt.imshow(np.squeeze(mask_list[0]), cmap='gray') # display the first image
+plt.imshow(np.squeeze(mask_list[0]), cmap='gray') # display the first image
 mask_list[0]
-
+'''
 
 # <h1>Add Validaion Data to Train Data</h1>
 # <p>It is easier to just slipt train data to validation data than manage train set and validation set. If you want to use validation set separately for model.fit, you need to do do model.fit(validation_data = (x_val , y_val) ) # tuple of x val and y val</p>
@@ -118,22 +128,19 @@ mask_list[0]
 # In[32]:
 
 
-# adding images
-val_img_path = 'data/validation_images/'
-for i in range(1, 501):
-    im = misc.imread(val_img_path + 'validation_img_' + str(i) + '.jpg') # read as numpy
+# adding validation images
+for i in range(1, num_val_images+1):
+    im = misc.imread(val_image_path + 'validation_img_' + str(i) + '.jpg') # read as numpy
     # resize the image to 256 X 256
     im = resize(im, (IMG_HEIGHT, IMG_WIDTH, IMG_CHANNELS), mode='constant')
     image_list.append(np.array(im)) # append it to the list 
 
-# adding masks
-val_mask_path = 'data/validation_masks/'
-for i in range(1, 501):
+# adding validation masks
+for i in range(1, num_val_masks+1):
     im = misc.imread(val_mask_path + 'validation_mask_' + str(i) + '.jpg') # read as numpy
     # resize the image to 256 X 256
-    im = resize(im, (IMG_HEIGHT, IMG_WIDTH, 1), mode='constant')
     # expand dimension (256, 256) to (256, 256, 1) to indicate that it has 1 channel for model.fit
-    #im = np.expand_dims(im, 2) # 2 indicates 3rd dimension
+    im = resize(im, (IMG_HEIGHT, IMG_WIDTH, 1), mode='constant')
     mask_list.append(np.array(im)) # append it to the list 
 
 
@@ -167,7 +174,7 @@ for i in range(1, 501):
 
 # In[40]:
 
-
+'''
 print(type(image_list))
 print(type(mask_list[0]))
 print(type(image_list))
@@ -175,7 +182,7 @@ print(type(mask_list[0]))
 print(np.array(image_list).shape, np.array(mask_list).shape)
 print(np.array(image_list[0]).shape)
 print(np.array(mask_list[0]).shape)
-
+'''
 
 # <h1>Get And Resize test images</h1>
 
@@ -184,8 +191,7 @@ print(np.array(mask_list[0]).shape)
 
 test_list = []
 sizes_test = []
-test_image_path = 'data/testing_images/'
-for i in range(1, 928):
+for i in range(1, num_test_images+1):
     im = misc.imread(test_image_path + 'test_img_' + str(i) + '.jpg') # read as numpy
     # resize the image to 256 X 256
     sizes_test.append([im.shape[0], im.shape[1]])
@@ -198,8 +204,8 @@ for i in range(1, 928):
 
 # Display the first test image
 #plt.imshow(test_list[49]) # display the first image
-print(type(test_list))
-print("train_masks type: ", type(test_list))
+#print(type(test_list))
+#print("train_masks type: ", type(test_list))
 
 
 # In[46]:
@@ -211,11 +217,11 @@ print("train_masks type: ", type(test_list))
 
 # In[47]:
 
-
+'''
 print(type(test_list))
 print(type(test_list[0]))
 print(np.array(test_list).shape)
-
+'''
 
 # <h1>Create Keras Metric</h1>
 # <p>It's used for the loss function. It's a customized loss function kind of</p>
