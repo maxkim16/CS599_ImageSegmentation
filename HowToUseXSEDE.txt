@@ -14,7 +14,7 @@ module load keras/2.0.6_anaconda  // load  keras
 --> if you get conflict with CUDA, then module unload cuda/8.0
 module load keras/2.0.6_anaconda   // load again
 source activate $KERAS_ENV   // be in keras env
-interact –-gpu  // now interact with GPU, now you can use it
+interact –gpu  // now interact with GPU, now you can use it
 
 INSTALL MODULES 
 1. Make sure you're NOT interacting with GPU.
@@ -38,7 +38,7 @@ Scp –r   when transferring a directory
 
 
 transfer to local machine from bridges	
-scp  XSEDE-username@data.bridges.psc.edu:/path/to/file FILENAME
+scp  XSEDE-Username@data.bridges.psc.edu:/path/to/file FILENAME
 // FILENAME here will be your new file name in your local directory
 
 ex) scp teset.txt kims4280@data.bridges.psc.edu:/home/kims4280      
